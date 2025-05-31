@@ -39,6 +39,7 @@ public class User {
     private String password;
 
     @Column(name = "role", nullable = false)
+
     private String role; // e.g., ADMIN, MANAGER, EMPLOYEE
 
     @Column(name = "is_authenticated", nullable = false)

@@ -3,36 +3,21 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: postgres-user
+    container_name: postgres-db
     environment:
-      POSTGRES_DB: userdb
+      POSTGRES_DB: my_user
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - itms-network
-
-  user-service:
-    build:
-      context: ./user-service
-    container_name: user-service
-    ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/userdb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: shreeram
-    networks:
-      - itms-network
+      - app-network
 
 volumes:
   pgdata:
 
 networks:
-  itms-network:
+  app-network:
     driver: bridge
