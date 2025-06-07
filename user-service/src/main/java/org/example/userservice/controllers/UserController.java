@@ -3,11 +3,14 @@ package org.example.userservice.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.userservice.dtos.*;
+import org.example.userservice.security.JwtUtil;
 import org.example.userservice.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/users")
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     //  Register a new user
     @PostMapping("/register")
@@ -47,9 +51,32 @@ public class UserController {
 
     // Soft delete user (authenticated)
     @DeleteMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("(hasRole('ADMIN') or hasRole('MANAGER')) and isAuthenticated()")
     public ResponseEntity<Void> softDeleteUser(@PathVariable Long id) {
         userService.softDeleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/username/{username}")
+    @PreAuthorize("isAuthenticated()") // Requires a valid JWT
+    public ResponseEntity<UserResponseDto> getUserByUserName(
+            @PathVariable String username,
+            @RequestHeader("Authorization") String authHeader, // Extract token
+            Authentication authentication // Populated by Spring Security
+    ) {
+        // (Optional) Verify token manually
+        String token = authHeader.substring(7); // Remove "Bearer "
+        if (!jwtUtil.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+
+        // Extract username from token (alternative to Authentication)
+        String tokenUsername = jwtUtil.extractUsername(token);
+        if (!username.equals(tokenUsername)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Username mismatch");
+        }
+
+        // Fetch user data
+        UserResponseDto user = userService.getUserByUserName(username);
+        return ResponseEntity.ok(user);
     }
 }

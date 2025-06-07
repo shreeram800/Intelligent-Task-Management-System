@@ -7,8 +7,13 @@ import org.example.userservice.dtos.*;
 import org.example.userservice.entity.User;
 import org.example.userservice.repository.UserRepository;
 import org.example.userservice.security.JwtUtil;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,9 +58,10 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setAuthenticated(true);
+        user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername(), List.of(user.getRole()));
         return new AuthResponseDto(token, mapToResponseDto(user));
 
     }
@@ -93,6 +99,17 @@ public class UserServiceImpl implements UserService {
         user.setDeleted(true);
         user.setStatus("INACTIVE");
         userRepository.save(user);
+    }
+
+    @Override
+    public UserResponseDto getUserByUserName(String userName) {
+        Optional<User> userOptional = userRepository.getUserByUsername(userName);
+
+        User user = userOptional.orElseThrow(() ->
+                new UsernameNotFoundException("User with username '" + userName + "' not found")
+        );
+
+        return mapToResponseDto(user);
     }
 
     private UserResponseDto mapToResponseDto(User user) {

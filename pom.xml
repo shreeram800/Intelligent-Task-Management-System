@@ -11,7 +11,7 @@
 
     <modules>
         <module>user-service</module>
-
+        <module>task-service</module>
     </modules>
 
     <properties>

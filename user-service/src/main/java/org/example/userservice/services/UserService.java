@@ -15,4 +15,5 @@ public interface UserService {
 
     void softDeleteUser(Long id);
 
+    UserResponseDto getUserByUserName(String userName);
 }
