@@ -29,6 +29,10 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Email or Username already exists.");
         }
 
+        if(!userRepository.existsByIdAndRole(request.getManagerId(),"MANAGER")){
+            throw new IllegalArgumentException("Manager not found");
+        }
+
         User user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -37,7 +41,7 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
                 .profilePictureUrl(request.getProfilePictureUrl())
-                .role("EMPLOYEE")
+                .role(request.getRole())
                 .isAuthenticated(false)
                 .isEmailVerified(false)
                 .status("ACTIVE")
@@ -84,6 +88,7 @@ public class UserServiceImpl implements UserService {
         if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
         if (request.getLastName() != null) user.setLastName(request.getLastName());
         if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if(request.getRole()!=null) user.setRole(request.getRole());
         if (request.getUsername() != null) user.setUsername(request.getUsername());
         if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
         if (request.getProfilePictureUrl() != null) user.setProfilePictureUrl(request.getProfilePictureUrl());

@@ -20,6 +20,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponseDto createTask(TaskRequestDto request) {
+
         Task task = Task.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -38,6 +39,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponseDto updateTask(Long taskId, TaskUpdateRequestDto request) {
+
         Task task = taskRepository.findById(taskId)
                 .filter(t -> !t.isDeleted())
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
@@ -102,7 +104,16 @@ public class TaskServiceImpl implements TaskService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<TaskResponseDto> getTaskByManagerId(Long managerId) {
+        return taskRepository.getAllByCreatedBy(managerId).stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
+
     private TaskResponseDto mapToResponseDto(Task task) {
+
         return TaskResponseDto.builder()
                 .id(task.getId())
                 .title(task.getTitle())

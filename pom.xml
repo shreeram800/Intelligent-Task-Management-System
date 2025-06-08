@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>service-registry</module>
         <module>user-service</module>
         <module>task-service</module>
     </modules>

@@ -62,10 +62,18 @@ public class TaskController {
         String username = authentication.getName();
         UserDto user = userServiceClient.getUserByUserName(username, token); // Pass token
         Long userId = user.getId();
-
         List<TaskResponseDto> tasks = taskService.getTasksByUserId(userId);
         return ResponseEntity.ok(tasks);
     }
+
+    @GetMapping("/manager/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    private ResponseEntity<List<TaskResponseDto>> getTaskByManager(@PathVariable Long id){
+        return ResponseEntity.ok(taskService.getTaskByManagerId(id));
+    }
+
+
+
 
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
@@ -80,4 +88,6 @@ public class TaskController {
         taskService.softDeleteTask(taskId);
         return ResponseEntity.noContent().build();
     }
+
+
 }

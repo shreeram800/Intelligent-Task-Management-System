@@ -20,4 +20,6 @@ public interface TaskService {
     void softDeleteTask(Long id);
 
     List<TaskResponseDto> getTasksByUserId(Long userId);
+
+    List<TaskResponseDto> getTaskByManagerId(Long managerId);
 }
