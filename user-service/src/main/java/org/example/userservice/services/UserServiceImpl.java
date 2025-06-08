@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
                 .isEmailVerified(false)
                 .status("ACTIVE")
                 .deleted(false)
-                .build();
+                .managerId(request.getManagerId()).build();
 
         User saved = userRepository.save(user);
         return mapToResponseDto(saved);
@@ -87,6 +87,7 @@ public class UserServiceImpl implements UserService {
         if (request.getUsername() != null) user.setUsername(request.getUsername());
         if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
         if (request.getProfilePictureUrl() != null) user.setProfilePictureUrl(request.getProfilePictureUrl());
+        if(request.getManagerId()!=null) user.setManagerId(request.getManagerId());
 
         return mapToResponseDto(userRepository.save(user));
     }
@@ -125,6 +126,7 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .status(user.getStatus())
+                .managerId(user.getManagerId())
                 .build();
     }
 }

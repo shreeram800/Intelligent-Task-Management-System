@@ -20,4 +20,5 @@ public class UserResponseDto {
     private String phoneNumber;
     private String profilePictureUrl;
     private String status;
+    private Long managerId;
 }

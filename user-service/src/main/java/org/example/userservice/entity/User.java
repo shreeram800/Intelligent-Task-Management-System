@@ -67,6 +67,9 @@ public class User {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
+    @Column(name = "manager_id")
+    private Long managerId;
+
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 

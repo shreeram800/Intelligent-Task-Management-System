@@ -20,4 +20,5 @@ public class UserDto {
     private boolean isAuthenticated;
     private boolean isEmailVerified;
     private String status;
+    private Long managerId;
 }

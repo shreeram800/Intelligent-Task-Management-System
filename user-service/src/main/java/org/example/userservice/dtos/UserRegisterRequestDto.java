@@ -29,6 +29,8 @@ public class UserRegisterRequestDto {
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
+    private Long managerId;
+
     private String phoneNumber;
     private String profilePictureUrl;
 }

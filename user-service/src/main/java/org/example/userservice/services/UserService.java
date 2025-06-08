@@ -1,6 +1,5 @@
 package org.example.userservice.services;
 
-
 import org.example.userservice.dtos.*;
 
 public interface UserService {
@@ -16,4 +15,5 @@ public interface UserService {
     void softDeleteUser(Long id);
 
     UserResponseDto getUserByUserName(String userName);
+
 }
