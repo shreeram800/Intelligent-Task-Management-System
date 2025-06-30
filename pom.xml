@@ -13,6 +13,7 @@
         <module>service-registry</module>
         <module>user-service</module>
         <module>task-service</module>
+        <module>notification-service</module>
     </modules>
 
     <properties>
