@@ -21,4 +21,5 @@ public class UserDto {
     private boolean isEmailVerified;
     private String status;
     private Long managerId;
+    private boolean deleted;
 }

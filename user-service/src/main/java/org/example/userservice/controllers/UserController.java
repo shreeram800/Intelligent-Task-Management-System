@@ -3,6 +3,7 @@ package org.example.userservice.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.userservice.dtos.*;
+import org.example.userservice.entity.User;
 import org.example.userservice.security.JwtUtil;
 import org.example.userservice.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -78,5 +81,10 @@ public class UserController {
         // Fetch user data
         UserResponseDto user = userService.getUserByUserName(username);
         return ResponseEntity.ok(user);
+    }
+    @GetMapping
+    @PreAuthorize("isAuthenticated() and (hasRole('MANAGER') or hasRole('ADMIN'))")
+    public ResponseEntity<List<UserResponseDto>> getALlUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 }

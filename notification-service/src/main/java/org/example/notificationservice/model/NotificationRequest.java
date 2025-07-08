@@ -1,11 +1,10 @@
 package org.example.notificationservice.model;
 
-import lombok.*;
+import lombok.Data;
 
 @Data
-@NoArgsConstructor
 public class NotificationRequest {
-    private String userEmail;
-    private String subject;
+    private Long senderId;
+    private Long receiverId;
     private String message;
 }

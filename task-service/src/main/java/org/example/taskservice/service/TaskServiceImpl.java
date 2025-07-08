@@ -2,9 +2,11 @@ package org.example.taskservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.example.taskservice.config.UserServiceClient;
 import org.example.taskservice.dao.TaskRequestDto;
 import org.example.taskservice.dao.TaskResponseDto;
 import org.example.taskservice.dao.TaskUpdateRequestDto;
+import org.example.taskservice.dao.UserDto;
 import org.example.taskservice.entity.*;
 import org.example.taskservice.repository.TaskRepository;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
+    private final UserServiceClient userClient;
 
     @Override
     public TaskResponseDto createTask(TaskRequestDto request) {
@@ -129,5 +132,43 @@ public class TaskServiceImpl implements TaskService {
                 .createdBy(task.getCreatedBy())
                 .updatedBy(task.getUpdatedBy())
                 .build();
+    }
+    @Override
+    public void assignTask(Long taskId, Long assignerId, Long assigneeId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        // Validate assigner has permission (e.g., is MANAGER or ADMIN)
+        UserDto assigner = userClient.getUserById(assignerId);
+        if (!assigner.getRole().equalsIgnoreCase("MANAGER") &&
+                !assigner.getRole().equalsIgnoreCase("ADMIN")) {
+            throw new RuntimeException("User not authorized to assign tasks");
+        }
+
+        // Validate assignee exists
+        UserDto assignee = userClient.getUserById(assigneeId);
+        if (assignee == null || assignee.isDeleted()) {
+            throw new RuntimeException("Assignee is invalid or deleted");
+        }
+
+        task.setAssignedToUserId(assigneeId);
+        task.setStatus(TaskStatus.TODO);
+        task.setUpdatedBy(assignerId);
+        taskRepository.save(task);
+    }
+
+    @Override
+    public void completeTask(Long taskId, Long userId) {
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        System.out.println(task.getAssignedToUserId() + " " + userId );
+
+        if (!task.getAssignedToUserId().equals(userId)) {
+            throw new RuntimeException("Only the assigned user can complete the task");
+        }
+        task.setStatus(TaskStatus.DONE);
+        task.setUpdatedBy(userId);
+        taskRepository.save(task);
     }
 }

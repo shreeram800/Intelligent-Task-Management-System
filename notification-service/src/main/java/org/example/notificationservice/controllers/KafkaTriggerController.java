@@ -1,7 +1,7 @@
 package org.example.notificationservice.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.example.notificationservice.model.NotificationRequest;
+import org.example.notificationservice.model.NotificationEmailRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/test")
 public class KafkaTriggerController {
 
-    private final KafkaTemplate<String, NotificationRequest> kafkaTemplate;
+    private final KafkaTemplate<String, NotificationEmailRequest> kafkaTemplate;
 
     @PostMapping("/trigger")
-    public String triggerKafka(@RequestBody NotificationRequest request) {
+    public String triggerKafka(@RequestBody NotificationEmailRequest request) {
         kafkaTemplate.send("task-events", request);
         return "Kafka event triggered!";
     }

@@ -2,6 +2,8 @@ package org.example.userservice.services;
 
 import org.example.userservice.dtos.*;
 
+import java.util.List;
+
 public interface UserService {
 
     UserResponseDto registerUser(UserRegisterRequestDto request);
@@ -16,4 +18,5 @@ public interface UserService {
 
     UserResponseDto getUserByUserName(String userName);
 
+    List<UserResponseDto> getAllUsers();
 }

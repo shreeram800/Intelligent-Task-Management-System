@@ -65,16 +65,11 @@ public class TaskController {
         List<TaskResponseDto> tasks = taskService.getTasksByUserId(userId);
         return ResponseEntity.ok(tasks);
     }
-
     @GetMapping("/manager/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     private ResponseEntity<List<TaskResponseDto>> getTaskByManager(@PathVariable Long id){
         return ResponseEntity.ok(taskService.getTaskByManagerId(id));
     }
-
-
-
-
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
     public ResponseEntity<List<TaskResponseDto>> getTasksByAssignedToUserId(@PathVariable("userId") Long userId) {
@@ -88,6 +83,24 @@ public class TaskController {
         taskService.softDeleteTask(taskId);
         return ResponseEntity.noContent().build();
     }
+    @PostMapping("/{taskId}/assign")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<String> assignTask(
+            @PathVariable Long taskId,
+            @RequestParam Long assignerId, // ID of the user assigning
+            @RequestParam Long assigneeId
+    ) {
+        taskService.assignTask(taskId, assignerId, assigneeId);
+        return ResponseEntity.ok("Task assigned successfully.");
+    }
 
-
+    @PostMapping("/{taskId}/complete")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
+    public ResponseEntity<String> completeTask(
+            @PathVariable Long taskId,
+            @RequestParam Long userId
+    ) {
+        taskService.completeTask(taskId, userId);
+        return ResponseEntity.ok("Task marked as completed.");
+    }
 }

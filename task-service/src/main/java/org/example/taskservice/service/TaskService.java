@@ -22,4 +22,8 @@ public interface TaskService {
     List<TaskResponseDto> getTasksByUserId(Long userId);
 
     List<TaskResponseDto> getTaskByManagerId(Long managerId);
+
+    void assignTask(Long taskId, Long assignerId, Long assigneeId);
+
+    void completeTask(Long taskId, Long userId);
 }
