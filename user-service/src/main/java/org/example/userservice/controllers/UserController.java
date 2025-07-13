@@ -3,7 +3,6 @@ package org.example.userservice.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.userservice.dtos.*;
-import org.example.userservice.entity.User;
 import org.example.userservice.security.JwtUtil;
 import org.example.userservice.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -72,13 +71,11 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
 
-        // Extract username from token (alternative to Authentication)
         String tokenUsername = jwtUtil.extractUsername(token);
         if (!username.equals(tokenUsername)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Username mismatch");
         }
 
-        // Fetch user data
         UserResponseDto user = userService.getUserByUserName(username);
         return ResponseEntity.ok(user);
     }

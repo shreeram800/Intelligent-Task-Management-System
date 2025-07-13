@@ -1,32 +1,50 @@
 package org.example.taskservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.example.taskservice.config.UserServiceClient;
 import org.example.taskservice.dao.TaskRequestDto;
 import org.example.taskservice.dao.TaskResponseDto;
 import org.example.taskservice.dao.TaskUpdateRequestDto;
 import org.example.taskservice.dao.UserDto;
+import org.example.taskservice.entity.Attachment;
+import org.example.taskservice.repository.AttachmentRepository;
 import org.example.taskservice.service.TaskService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpHeaders;
 
+
+import java.io.IOException;
 import java.util.List;
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
 public class TaskController {
 
-    private final TaskService taskService;
+    private final  TaskService taskService;
+
+    private final  AttachmentRepository attachmentRepository;
 
     private final UserServiceClient userServiceClient;
 
-    @PostMapping
+
+    @PostMapping(consumes = {"multipart/form-data"})
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    public ResponseEntity<TaskResponseDto> createTask(@RequestBody TaskRequestDto request) {
-        TaskResponseDto response = taskService.createTask(request);
-        System.out.println(response);
+    public ResponseEntity<TaskResponseDto> createTaskWithAttachments(
+            @RequestPart("task") TaskRequestDto taskRequest,
+            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
+
+        TaskResponseDto response = null;
+        try {
+            response = taskService.createTask(taskRequest, attachments);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return ResponseEntity.ok(response);
     }
 
@@ -40,9 +58,10 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<TaskResponseDto> getTaskById(@PathVariable("id") Long taskId) {
+        System.out.println("Fetching task by ID: " + taskId);
         TaskResponseDto response = taskService.getTaskById(taskId);
         return ResponseEntity.ok(response);
     }
@@ -103,4 +122,16 @@ public class TaskController {
         taskService.completeTask(taskId, userId);
         return ResponseEntity.ok("Task marked as completed.");
     }
+
+    @GetMapping("/attachments/download/{attachmentId}")
+    public ResponseEntity<byte[]> downloadAttachment(@PathVariable Long attachmentId) {
+        Attachment attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found"));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + attachment.getFileName())
+                .contentType(MediaType.parseMediaType(attachment.getFileType()))
+                .body(attachment.getData());
+    }
+
 }

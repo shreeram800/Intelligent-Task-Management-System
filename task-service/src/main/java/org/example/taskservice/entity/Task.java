@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "tasks")
@@ -56,6 +57,9 @@ public class Task {
 
     @Column(name = "created_by")
     private Long createdBy;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Attachment> attachmentList;
 
     @Column(name = "updated_by")
     private Long updatedBy;

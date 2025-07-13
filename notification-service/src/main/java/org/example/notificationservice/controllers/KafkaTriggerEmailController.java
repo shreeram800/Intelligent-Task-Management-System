@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/test")
-public class KafkaTriggerController {
+@RequestMapping("/api/email")
+public class KafkaTriggerEmailController {
 
     private final KafkaTemplate<String, NotificationEmailRequest> kafkaTemplate;
 

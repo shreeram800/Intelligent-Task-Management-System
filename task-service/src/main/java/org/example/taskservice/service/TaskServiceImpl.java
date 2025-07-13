@@ -3,14 +3,16 @@ package org.example.taskservice.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.example.taskservice.config.UserServiceClient;
-import org.example.taskservice.dao.TaskRequestDto;
-import org.example.taskservice.dao.TaskResponseDto;
-import org.example.taskservice.dao.TaskUpdateRequestDto;
-import org.example.taskservice.dao.UserDto;
+import org.example.taskservice.dao.*;
 import org.example.taskservice.entity.*;
 import org.example.taskservice.repository.TaskRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,9 +22,10 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final UserServiceClient userClient;
+    private final AttachmentService attachmentService;
 
     @Override
-    public TaskResponseDto createTask(TaskRequestDto request) {
+    public TaskResponseDto createTask(TaskRequestDto request, List<MultipartFile> attachments) throws IOException {
 
         Task task = Task.builder()
                 .title(request.getTitle())
@@ -35,6 +38,26 @@ public class TaskServiceImpl implements TaskService {
                 .createdBy(request.getCreatedBy())
                 .deleted(false)
                 .build();
+        Task savedTask = taskRepository.save(task);
+
+        List<Attachment> attachmentList = new ArrayList<>();
+        if (attachments != null && !attachments.isEmpty()) {
+            for (MultipartFile file : attachments) {
+                try {
+                    Attachment attachment = Attachment.builder()
+                            .fileName(file.getOriginalFilename())
+                            .fileType(file.getContentType())
+                            .fileSize(file.getSize())
+                            .data(file.getBytes())
+                            .task(savedTask)
+                            .build();
+                    attachmentList.add(attachment);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to read file: " + file.getOriginalFilename(), e);
+                }
+            }
+        }
+        attachmentService.uploadFile(attachmentList);
 
         Task saved = taskRepository.save(task);
         return mapToResponseDto(saved);
@@ -59,14 +82,42 @@ public class TaskServiceImpl implements TaskService {
         return mapToResponseDto(taskRepository.save(task));
     }
 
-    @Override
     public TaskResponseDto getTaskById(Long taskId) {
-        Task task = taskRepository.findById(taskId)
-                .filter(t -> !t.isDeleted())
+        Task task = taskRepository.findByIdWithAttachments(taskId) // updated method
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-        return mapToResponseDto(task);
+
+
+        List<AttachmentMetaDto> attachmentDtos = task.getAttachmentList() == null ? List.of() :
+                task.getAttachmentList().stream()
+                        .map(att -> AttachmentMetaDto.builder()
+                                .id(att.getId())
+                                .fileName(att.getFileName())
+                                .fileType(att.getFileType())
+                                .fileSize(att.getFileSize())
+                                .downloadUrl(ServletUriComponentsBuilder.fromCurrentContextPath()
+                                        .path("/tasks/api/attachments/download/")
+                                        .path(String.valueOf(att.getId()))
+                                        .toUriString())
+                                .build())
+                        .toList();
+
+        return TaskResponseDto.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .status(String.valueOf(task.getStatus()))
+                .priority(String.valueOf(task.getPriority()))
+                .dueDate(task.getDueDate())
+                .createdAt(task.getCreatedAt())
+                .updatedAt(task.getUpdatedAt())
+                .createdBy(task.getCreatedBy())
+                .updatedBy(task.getUpdatedBy())
+                .attachments(attachmentDtos)
+                .build();
     }
+
+
 
     @Override
     public List<TaskResponseDto> getAllTasks() {
