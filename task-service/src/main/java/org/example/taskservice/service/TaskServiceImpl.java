@@ -3,15 +3,15 @@ package org.example.taskservice.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.example.taskservice.config.UserServiceClient;
-import org.example.taskservice.dao.*;
+import org.example.taskservice.dtos.*;
 import org.example.taskservice.entity.*;
 import org.example.taskservice.repository.TaskRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -83,24 +83,25 @@ public class TaskServiceImpl implements TaskService {
     }
 
     public TaskResponseDto getTaskById(Long taskId) {
-        Task task = taskRepository.findByIdWithAttachments(taskId) // updated method
+        System.out.println(taskId);
+
+        Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
-
-
-        List<AttachmentMetaDto> attachmentDtos = task.getAttachmentList() == null ? List.of() :
-                task.getAttachmentList().stream()
-                        .map(att -> AttachmentMetaDto.builder()
-                                .id(att.getId())
-                                .fileName(att.getFileName())
-                                .fileType(att.getFileType())
-                                .fileSize(att.getFileSize())
-                                .downloadUrl(ServletUriComponentsBuilder.fromCurrentContextPath()
-                                        .path("/tasks/api/attachments/download/")
-                                        .path(String.valueOf(att.getId()))
-                                        .toUriString())
-                                .build())
-                        .toList();
+        // Use projections to build AttachmentMetaDto list
+        List<AttachmentMetaProjection> projections = attachmentService.getProjection(taskId);
+        List<AttachmentMetaDto> attachmentDtos = projections.stream()
+                .map(p -> AttachmentMetaDto.builder()
+                        .id(p.getId())
+                        .fileName(p.getFileName())
+                        .fileType(p.getFileType())
+                        .fileSize(p.getFileSize())
+                        .downloadUrl(ServletUriComponentsBuilder.fromCurrentContextPath()
+                                .path("/tasks/api/attachments/download/")
+                                .path(String.valueOf(p.getId()))
+                                .toUriString())
+                        .build())
+                .toList();
 
         return TaskResponseDto.builder()
                 .id(task.getId())
@@ -112,11 +113,9 @@ public class TaskServiceImpl implements TaskService {
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
                 .createdBy(task.getCreatedBy())
-                .updatedBy(task.getUpdatedBy())
                 .attachments(attachmentDtos)
                 .build();
     }
-
 
 
     @Override

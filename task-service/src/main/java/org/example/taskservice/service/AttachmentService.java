@@ -3,6 +3,8 @@ package org.example.taskservice.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import org.example.taskservice.dtos.AttachmentMetaProjection;
+import org.example.taskservice.dtos.DownloadAttachmentDto;
 import org.example.taskservice.entity.Attachment;
 import org.example.taskservice.repository.AttachmentRepository;
 import org.springframework.stereotype.Service;
@@ -29,15 +31,16 @@ public class AttachmentService {
                     .setParameter("fileName", attachment.getFileName())
                     .setParameter("fileType", attachment.getFileType())
                     .setParameter("fileSize", attachment.getFileSize())
-                    .setParameter("data", attachment.getData()) // byte[]
+                    .setParameter("data", attachment.getData())
                     .setParameter("taskId", attachment.getTask().getId())
                     .executeUpdate();
         }
     }
+    public List<AttachmentMetaProjection> getProjection(Long taskId){
+        return repository.findAttachmentMetaByTaskId(taskId);
+    }
 
-
-
-    public Attachment getFile(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("File not found"));
+    public DownloadAttachmentDto getAttachmentById(Long id) {
+        return repository.findDownloadAttachmentById(id);
     }
 }

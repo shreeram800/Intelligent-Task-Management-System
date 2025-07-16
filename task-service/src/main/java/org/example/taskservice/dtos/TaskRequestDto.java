@@ -1,10 +1,10 @@
-package org.example.taskservice.dao;
+package org.example.taskservice.dtos;
 
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
@@ -12,12 +12,12 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @ToString
-public class TaskResponseDto {
+public class TaskRequestDto {
 
-    private Long id;
-
+    @Size(max = 100, message = "Title must be at most 100 characters")
     private String title;
 
+    @Size(max = 1000, message = "Description must be at most 1000 characters")
     private String description;
 
     private Long assignedToUserId;
@@ -30,15 +30,7 @@ public class TaskResponseDto {
 
     private LocalDateTime dueDate;
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-    private boolean deleted;
-
     private Long createdBy;
 
     private Long updatedBy;
-
-    private List<AttachmentMetaDto> attachments;
 }

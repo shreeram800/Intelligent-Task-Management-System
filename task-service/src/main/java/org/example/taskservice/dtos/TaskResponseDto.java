@@ -1,22 +1,22 @@
-package org.example.taskservice.dao;
+package org.example.taskservice.dtos;
 
-
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TaskUpdateRequestDto {
+@ToString
+public class TaskResponseDto {
 
-    @Size(max = 100, message = "Title must be at most 100 characters")
+    private Long id;
+
     private String title;
 
-    @Size(max = 1000, message = "Description must be at most 1000 characters")
     private String description;
 
     private Long assignedToUserId;
@@ -29,5 +29,15 @@ public class TaskUpdateRequestDto {
 
     private LocalDateTime dueDate;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    private boolean deleted;
+
+    private Long createdBy;
+
     private Long updatedBy;
+
+    private List<AttachmentMetaDto> attachments;
 }

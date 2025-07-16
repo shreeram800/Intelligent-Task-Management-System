@@ -1,4 +1,4 @@
-package org.example.taskservice.dao;
+package org.example.taskservice.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,13 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class AttachmentMetaDto {
-    private Long id;
+public class DownloadAttachmentDto {
+
     private String fileName;
     private String fileType;
     private Long fileSize;
-    private String downloadUrl; // Optional for frontend to download
+    private byte[] data;
 }

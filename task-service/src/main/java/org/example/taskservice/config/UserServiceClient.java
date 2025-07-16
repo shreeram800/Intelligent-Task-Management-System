@@ -2,7 +2,7 @@ package org.example.taskservice.config;
 
 import feign.RequestInterceptor;
 import jakarta.validation.constraints.NotNull;
-import org.example.taskservice.dao.UserDto;
+import org.example.taskservice.dtos.UserDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;

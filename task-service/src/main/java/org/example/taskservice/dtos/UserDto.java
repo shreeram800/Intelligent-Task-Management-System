@@ -1,4 +1,4 @@
-package org.example.taskservice.dao;
+package org.example.taskservice.dtos;
 
 import lombok.*;
 

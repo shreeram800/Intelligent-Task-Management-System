@@ -1,8 +1,8 @@
-package org.example.taskservice.dao;
+package org.example.taskservice.dtos;
 
-import lombok.*;
 
 import jakarta.validation.constraints.Size;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
-public class TaskRequestDto {
+public class TaskUpdateRequestDto {
 
     @Size(max = 100, message = "Title must be at most 100 characters")
     private String title;
@@ -29,8 +28,6 @@ public class TaskRequestDto {
     private String priority;
 
     private LocalDateTime dueDate;
-
-    private Long createdBy;
 
     private Long updatedBy;
 }

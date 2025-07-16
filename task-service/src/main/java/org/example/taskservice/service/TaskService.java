@@ -1,8 +1,8 @@
 package org.example.taskservice.service;
 
-import org.example.taskservice.dao.TaskRequestDto;
-import org.example.taskservice.dao.TaskResponseDto;
-import org.example.taskservice.dao.TaskUpdateRequestDto;
+import org.example.taskservice.dtos.TaskRequestDto;
+import org.example.taskservice.dtos.TaskResponseDto;
+import org.example.taskservice.dtos.TaskUpdateRequestDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

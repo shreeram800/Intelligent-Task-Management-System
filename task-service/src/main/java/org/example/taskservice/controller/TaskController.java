@@ -1,14 +1,10 @@
 package org.example.taskservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.example.taskservice.config.UserServiceClient;
-import org.example.taskservice.dao.TaskRequestDto;
-import org.example.taskservice.dao.TaskResponseDto;
-import org.example.taskservice.dao.TaskUpdateRequestDto;
-import org.example.taskservice.dao.UserDto;
-import org.example.taskservice.entity.Attachment;
+import org.example.taskservice.dtos.*;
 import org.example.taskservice.repository.AttachmentRepository;
+import org.example.taskservice.service.AttachmentService;
 import org.example.taskservice.service.TaskService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +22,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
 
-    private final  TaskService taskService;
+    private final TaskService taskService;
 
-    private final  AttachmentRepository attachmentRepository;
+    private final AttachmentRepository attachmentRepository;
+
+    private final AttachmentService attachmentService;
 
     private final UserServiceClient userServiceClient;
 
@@ -84,11 +82,13 @@ public class TaskController {
         List<TaskResponseDto> tasks = taskService.getTasksByUserId(userId);
         return ResponseEntity.ok(tasks);
     }
+
     @GetMapping("/manager/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    private ResponseEntity<List<TaskResponseDto>> getTaskByManager(@PathVariable Long id){
+    private ResponseEntity<List<TaskResponseDto>> getTaskByManager(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.getTaskByManagerId(id));
     }
+
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'EMPLOYEE')")
     public ResponseEntity<List<TaskResponseDto>> getTasksByAssignedToUserId(@PathVariable("userId") Long userId) {
@@ -102,6 +102,7 @@ public class TaskController {
         taskService.softDeleteTask(taskId);
         return ResponseEntity.noContent().build();
     }
+
     @PostMapping("/{taskId}/assign")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<String> assignTask(
@@ -125,13 +126,10 @@ public class TaskController {
 
     @GetMapping("/attachments/download/{attachmentId}")
     public ResponseEntity<byte[]> downloadAttachment(@PathVariable Long attachmentId) {
-        Attachment attachment = attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found"));
-
+        DownloadAttachmentDto attachment = attachmentService.getAttachmentById(attachmentId);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + attachment.getFileName())
                 .contentType(MediaType.parseMediaType(attachment.getFileType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getFileName() + "\"")
                 .body(attachment.getData());
     }
-
 }
