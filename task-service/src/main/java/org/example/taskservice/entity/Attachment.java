@@ -3,7 +3,6 @@ package org.example.taskservice.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigInteger;
 
 @Entity
 @Table(name = "attachments")

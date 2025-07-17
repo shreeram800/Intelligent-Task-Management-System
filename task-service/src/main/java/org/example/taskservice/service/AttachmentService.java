@@ -3,12 +3,12 @@ package org.example.taskservice.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.example.taskservice.dtos.AttachmentMetaProjection;
-import org.example.taskservice.dtos.DownloadAttachmentDto;
+import org.example.taskservice.dtos.DownloadAttachmentProjection;
 import org.example.taskservice.entity.Attachment;
 import org.example.taskservice.repository.AttachmentRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -40,7 +40,7 @@ public class AttachmentService {
         return repository.findAttachmentMetaByTaskId(taskId);
     }
 
-    public DownloadAttachmentDto getAttachmentById(Long id) {
-        return repository.findDownloadAttachmentById(id);
+    public DownloadAttachmentProjection getAttachmentById(Long id) {
+        return repository.findByIdCustom(id).orElseThrow(()->new ResourceNotFoundException("Attachment with id " + id + " not found"));
     }
 }

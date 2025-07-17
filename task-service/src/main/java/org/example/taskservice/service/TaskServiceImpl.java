@@ -97,7 +97,7 @@ public class TaskServiceImpl implements TaskService {
                         .fileType(p.getFileType())
                         .fileSize(p.getFileSize())
                         .downloadUrl(ServletUriComponentsBuilder.fromCurrentContextPath()
-                                .path("/tasks/api/attachments/download/")
+                                .path("/api/tasks/attachments/download/")
                                 .path(String.valueOf(p.getId()))
                                 .toUriString())
                         .build())

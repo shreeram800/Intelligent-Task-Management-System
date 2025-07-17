@@ -3,28 +3,26 @@ package org.example.taskservice.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.taskservice.config.UserServiceClient;
 import org.example.taskservice.dtos.*;
-import org.example.taskservice.repository.AttachmentRepository;
+import org.example.taskservice.entity.Attachment;
 import org.example.taskservice.service.AttachmentService;
 import org.example.taskservice.service.TaskService;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.HttpHeaders;
 
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
 public class TaskController {
 
     private final TaskService taskService;
-
-    private final AttachmentRepository attachmentRepository;
 
     private final AttachmentService attachmentService;
 
@@ -107,7 +105,7 @@ public class TaskController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<String> assignTask(
             @PathVariable Long taskId,
-            @RequestParam Long assignerId, // ID of the user assigning
+            @RequestParam Long assignerId,
             @RequestParam Long assigneeId
     ) {
         taskService.assignTask(taskId, assignerId, assigneeId);
@@ -125,11 +123,17 @@ public class TaskController {
     }
 
     @GetMapping("/attachments/download/{attachmentId}")
-    public ResponseEntity<byte[]> downloadAttachment(@PathVariable Long attachmentId) {
-        DownloadAttachmentDto attachment = attachmentService.getAttachmentById(attachmentId);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(attachment.getFileType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getFileName() + "\"")
-                .body(attachment.getData());
+    public ResponseEntity<byte[]> downloadFile(@PathVariable Long attachmentId) {
+        DownloadAttachmentProjection file = attachmentService.getAttachmentById(attachmentId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(file.getFileType()));
+        headers.setContentDisposition(ContentDisposition.attachment()
+                .filename(file.getFileName())
+                .build());
+        headers.setContentLength(file.getFileSize());
+
+        return new ResponseEntity<>(file.getData(), headers, HttpStatus.OK);
     }
+
 }
