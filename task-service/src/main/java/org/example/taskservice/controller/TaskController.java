@@ -3,7 +3,6 @@ package org.example.taskservice.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.taskservice.config.UserServiceClient;
 import org.example.taskservice.dtos.*;
-import org.example.taskservice.entity.Attachment;
 import org.example.taskservice.service.AttachmentService;
 import org.example.taskservice.service.TaskService;
 import org.springframework.http.*;
@@ -15,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -109,6 +108,7 @@ public class TaskController {
             @RequestParam Long assigneeId
     ) {
         taskService.assignTask(taskId, assignerId, assigneeId);
+
         return ResponseEntity.ok("Task assigned successfully.");
     }
 
@@ -135,5 +135,7 @@ public class TaskController {
 
         return new ResponseEntity<>(file.getData(), headers, HttpStatus.OK);
     }
+
+
 
 }

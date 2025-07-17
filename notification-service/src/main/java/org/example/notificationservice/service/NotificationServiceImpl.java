@@ -3,6 +3,7 @@ package org.example.notificationservice.service;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.After;
 import org.example.notificationservice.model.Notification;
+import org.example.notificationservice.model.NotificationResponseDto;
 import org.example.notificationservice.model.NotificationRequest;
 import org.example.notificationservice.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,23 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @After("org.example.no")
-    public List<Notification> getNotificationsForUser(Long userId) {
-        return notificationRepository.findByReceiverIdOrderByCreatedAtDesc(userId);
+    public List<NotificationResponseDto> getNotificationsForUser(Long userId) {
+        List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(userId);
+        return notifications.stream().map(NotificationServiceImpl::toDto).toList();
+    }
+    public static NotificationResponseDto toDto(Notification notification) {
+        if (notification == null) return null;
+
+        NotificationResponseDto dto = new NotificationResponseDto();
+        dto.setId(notification.getId());
+        dto.setSenderId(notification.getSenderId());
+        dto.setReceiverId(notification.getReceiverId());
+        dto.setSenderName(notification.getSenderName());
+        dto.setReceiverName(notification.getReceiverName());
+        dto.setMessage(notification.getMessage());
+        dto.setRead(notification.isRead());
+        dto.setCreatedAt(notification.getCreatedAt());
+
+        return dto;
     }
 }

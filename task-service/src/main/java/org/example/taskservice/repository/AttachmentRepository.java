@@ -24,7 +24,7 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
     List<AttachmentMetaProjection> findAttachmentMetaByTaskId(@Param("taskId") Long taskId);
 
     @Query(value = """
-    SELECT 
+    SELECT
         file_name AS fileName,
         file_type AS fileType,
         file_size AS fileSize,
@@ -33,5 +33,4 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Long> {
     WHERE id = :id
 """, nativeQuery = true)
     Optional<DownloadAttachmentProjection> findByIdCustom(@Param("id") Long id);
-
 }

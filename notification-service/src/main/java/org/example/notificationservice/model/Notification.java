@@ -25,6 +25,12 @@ public class Notification {
     @Column(name = "receiver_id", nullable = false)
     private Long receiverId;
 
+    @Column(name = "sender_name")
+    private String senderName;
+
+    @Column(name = "receiver_name")
+    private String receiverName;
+
     @Column(nullable = false)
     private String message;
 

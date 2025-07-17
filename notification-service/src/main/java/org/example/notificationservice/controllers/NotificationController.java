@@ -1,7 +1,7 @@
 package org.example.notificationservice.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.example.notificationservice.model.Notification;
+import org.example.notificationservice.model.NotificationResponseDto;
 import org.example.notificationservice.model.NotificationRequest;
 import org.example.notificationservice.service.NotificationService;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ public class NotificationController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable Long userId) {
+    public ResponseEntity<List<NotificationResponseDto>> getUserNotifications(@PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.getNotificationsForUser(userId));
     }
 }

@@ -2,11 +2,15 @@ package org.example.taskservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.example.taskservice.config.NotificationClient;
 import org.example.taskservice.config.UserServiceClient;
 import org.example.taskservice.dtos.*;
 import org.example.taskservice.entity.*;
 import org.example.taskservice.repository.TaskRepository;
+import org.example.taskservice.security.AuthTokenProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -23,6 +27,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final UserServiceClient userClient;
     private final AttachmentService attachmentService;
+    private final AuthTokenProvider tokenProvider;
 
     @Override
     public TaskResponseDto createTask(TaskRequestDto request, List<MultipartFile> attachments) throws IOException {
@@ -188,15 +193,16 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
+        String token = tokenProvider.getAuthToken();
         // Validate assigner has permission (e.g., is MANAGER or ADMIN)
-        UserDto assigner = userClient.getUserById(assignerId);
+        UserDto assigner = userClient.getUserById(assignerId,token);
         if (!assigner.getRole().equalsIgnoreCase("MANAGER") &&
                 !assigner.getRole().equalsIgnoreCase("ADMIN")) {
             throw new RuntimeException("User not authorized to assign tasks");
         }
 
         // Validate assignee exists
-        UserDto assignee = userClient.getUserById(assigneeId);
+        UserDto assignee = userClient.getUserById(assigneeId,token);
         if (assignee == null || assignee.isDeleted()) {
             throw new RuntimeException("Assignee is invalid or deleted");
         }

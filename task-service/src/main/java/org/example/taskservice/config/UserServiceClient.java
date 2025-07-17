@@ -16,7 +16,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public interface UserServiceClient {
 
     @GetMapping("/api/users/{userId}")
-    UserDto getUserById(@NotNull(message = "User ID is required") @PathVariable Long userId);
+    UserDto getUserById(@NotNull(message = "User ID is required") @PathVariable Long userId, @RequestHeader("Authorization") String token);
 
     @GetMapping("/api/users/username/{username}")
     UserDto getUserByUserName(

@@ -6,7 +6,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableFeignClients(basePackages = "org.example.taskservice.config")
-
 public class TaskServiceApplication {
 
     public static void main(String[] args) {
