@@ -40,7 +40,7 @@ public class User {
 
     @Column(name = "role", nullable = false)
 
-    private String role; // e.g., ADMIN, MANAGER, EMPLOYEE
+    private String role; // e.g. ADMIN, MANAGER, EMPLOYEE
 
     @Column(name = "is_authenticated", nullable = false)
     private boolean isAuthenticated = false;
@@ -55,7 +55,7 @@ public class User {
     private String profilePictureUrl;
 
     @Column(name = "status")
-    private String status; // e.g., ACTIVE, INACTIVE, BLOCKED
+    private String status; // e.g. ACTIVE, INACTIVE, BLOCKED
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -72,6 +72,10 @@ public class User {
 
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
+
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     @PrePersist
     public void prePersist() {
