@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Team Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f2f2f2;
+        }
+        .chat-container {
+            margin-top: 20px;
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .messages {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h2>Team Chat</h2>
+
+    <label>JWT Token</label>
+    <input type="text" id="token" placeholder="Enter JWT token">
+
+    <label>Sender ID</label>
+    <input type="number" id="senderId" placeholder="Enter sender ID">
+
+    <label>Receiver ID</label>
+    <input type="number" id="receiverId" placeholder="Enter receiver ID">
+
+    <label>Team ID</label>
+    <input type="number" id="teamId" placeholder="Enter team ID">
+
+    <button onclick="connect()">Connect</button>
+
+    <div class="messages" id="messages"></div>
+
+    <textarea id="messageInput" placeholder="Type a message..."></textarea>
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+    let stompClient = null;
+
+    function connect() {
+        const token = document.getElementById("token").value;
+        const senderId = document.getElementById("senderId").value;
+        const receiverId = document.getElementById("receiverId").value;
+        const teamId = document.getElementById("teamId").value;
+
+        const socket = new SockJS(`http://localhost:8081/ws?token=${token}`);
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log("Connected: " + frame);
+            const destination = `/topic/team/${teamId}/user/${senderId}`;
+            stompClient.subscribe(destination, function (messageOutput) {
+                const msg = JSON.parse(messageOutput.body);
+                showMessage(`From ${msg.senderId}: ${msg.content}`);
+            });
+            showMessage("Connected to chat");
+        }, function (error) {
+            alert("Connection error: " + error);
+        });
+    }
+
+    function sendMessage() {
+        const senderId = document.getElementById("senderId").value;
+        const receiverId = document.getElementById("receiverId").value;
+        const teamId = document.getElementById("teamId").value;
+        const content = document.getElementById("messageInput").value;
+
+        const chatMessage = {
+            senderId: parseInt(senderId),
+            receiverId: parseInt(receiverId),
+            teamId: parseInt(teamId),
+            content: content
+        };
+
+        stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
+        showMessage(`You: ${content}`);
+        document.getElementById("messageInput").value = "";
+    }
+
+    function showMessage(message) {
+        const messagesDiv = document.getElementById("messages");
+        const p = document.createElement("p");
+        p.textContent = message;
+        messagesDiv.appendChild(p);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+</script>
+
+</body>
+</html>

@@ -28,11 +28,11 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/ws-chat/**").permitAll()
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
-                        .requestMatchers("/api/users/username/**")
-                        .authenticated()
-                                .anyRequest().authenticated()
+                        // ✅ Allow the WebSocket handshake to pass through the main filter chain
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/api/users/username/**").authenticated()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
