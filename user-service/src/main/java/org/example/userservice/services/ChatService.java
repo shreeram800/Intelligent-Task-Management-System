@@ -23,6 +23,10 @@ public class ChatService {
         User receiver = userRepository.findById(dto.getReceiverId())
                 .orElseThrow(() -> new RuntimeException("Receiver not found"));
 
+        if (sender.getTeam() == null) {
+            throw new IllegalStateException("User is not assigned to any team.");
+        }
+
         if (!Objects.equals(sender.getTeam().getId(), receiver.getTeam().getId())) {
             throw new IllegalArgumentException("Users are not in the same team");
         }

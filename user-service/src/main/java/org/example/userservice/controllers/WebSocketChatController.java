@@ -24,17 +24,30 @@ public class WebSocketChatController {
 
     @MessageMapping("/chat.send")
     public void sendMessage(@Payload ChatMessageDTO chatMessage, Principal principal) {
-        // Validate user identity from Principal (usually username or email)
-        User sender = userRepository.findByUsername(principal.getName())
-                .orElseThrow(() -> new RuntimeException("Unauthorized"));
-
-        if (!sender.getId().equals(chatMessage.getSenderId())) {
-            throw new AccessDeniedException("Sender ID mismatch");
+        if (principal == null || principal.getName() == null) {
+            throw new AccessDeniedException("Missing or invalid authentication context");
         }
 
+        String username = principal.getName();
+
+        // Fetch sender based on authenticated username
+        User sender = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Unauthorized: User not found"));
+
+        // Ensure senderId in message matches the authenticated user's ID
+        if (!sender.getId().equals(chatMessage.getSenderId())) {
+            throw new AccessDeniedException("Sender ID does not match authenticated user");
+        }
+
+        // Persist the chat message
         Message savedMessage = chatService.saveMessage(chatMessage);
+
+        // Build destination topic for receiver
         String destination = "/topic/team/" + chatMessage.getTeamId() + "/user/" + chatMessage.getReceiverId();
+
+        // Send message to the destination
         messagingTemplate.convertAndSend(destination, chatMessage);
     }
+
 
 }

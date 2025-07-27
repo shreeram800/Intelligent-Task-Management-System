@@ -22,9 +22,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .addInterceptors(jwtHandshakeInterceptor) // Autowire this
-                .setAllowedOriginPatterns("*") // Fix CORS here
-                .withSockJS(); // Required for fallback like /ws/info
+                .setAllowedOriginPatterns("*")
+                .addInterceptors(jwtHandshakeInterceptor) // Already injecting this
+                .setHandshakeHandler(new CustomHandshakeHandler()) // Add this
+                .withSockJS();
     }
+
 
 }
