@@ -1,7 +1,7 @@
 package org.example.userservice.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.example.userservice.dtos.ChatMessageDTO;
+import org.example.userservice.dtos.ChatResponseDTO;
 import org.example.userservice.entity.Message;
 import org.example.userservice.entity.User;
 import org.example.userservice.repository.UserRepository;
@@ -23,7 +23,7 @@ public class WebSocketChatController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/chat.send")
-    public void sendMessage(@Payload ChatMessageDTO chatMessage, Principal principal) {
+    public void sendMessage(@Payload ChatResponseDTO chatMessage, Principal principal) {
         if (principal == null || principal.getName() == null) {
             throw new AccessDeniedException("Missing or invalid authentication context");
         }

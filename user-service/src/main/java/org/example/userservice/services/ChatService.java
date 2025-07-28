@@ -1,13 +1,14 @@
 package org.example.userservice.services;
 
 import lombok.RequiredArgsConstructor;
-import org.example.userservice.dtos.ChatMessageDTO;
+import org.example.userservice.dtos.ChatResponseDTO;
 import org.example.userservice.entity.Message;
 import org.example.userservice.entity.User;
 import org.example.userservice.repository.MessageRepository;
 import org.example.userservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -17,7 +18,7 @@ public class ChatService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
 
-    public Message saveMessage(ChatMessageDTO dto) {
+    public Message saveMessage(ChatResponseDTO dto) {
         User sender = userRepository.findById(dto.getSenderId())
                 .orElseThrow(() -> new RuntimeException("Sender not found"));
         User receiver = userRepository.findById(dto.getReceiverId())
@@ -37,6 +38,7 @@ public class ChatService {
                 .team(sender.getTeam())
                 .content(dto.getContent())
                 .read(false)
+                .sentAt(LocalDateTime.now())
                 .build();
 
         return messageRepository.save(message);

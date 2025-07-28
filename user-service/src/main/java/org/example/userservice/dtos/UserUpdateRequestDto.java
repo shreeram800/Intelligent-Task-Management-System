@@ -47,4 +47,6 @@ public class UserUpdateRequestDto {
     private String status;
 
     private Long managerId;
+
+    private Long teamId;
 }

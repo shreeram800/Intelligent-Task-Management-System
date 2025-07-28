@@ -54,4 +54,6 @@ public class UserRegisterRequestDto {
             message = "Invalid profile picture URL format"
     )
     private String profilePictureUrl;
+
+    private Long teamId;
 }

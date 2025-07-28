@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.userservice.Exceptions.ResourceNotFoundException;
 import org.example.userservice.dtos.*;
 import org.example.userservice.entity.User;
+import org.example.userservice.repository.TeamRepository;
 import org.example.userservice.repository.UserRepository;
 import org.example.userservice.security.JwtUtil;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,6 +23,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TeamRepository teamRepository;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -47,6 +49,7 @@ public class UserServiceImpl implements UserService {
                 .isEmailVerified(false)
                 .status("ACTIVE")
                 .deleted(false)
+                .team(teamRepository.getById(request.getTeamId()))
                 .managerId(request.getManagerId()).build();
 
         User saved = userRepository.save(user);
@@ -94,7 +97,7 @@ public class UserServiceImpl implements UserService {
         if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
         if (request.getProfilePictureUrl() != null) user.setProfilePictureUrl(request.getProfilePictureUrl());
         if(request.getManagerId()!=null) user.setManagerId(request.getManagerId());
-
+        if(request.getTeamId()!=null) user.setTeam(teamRepository.getById(request.getTeamId()));
         return mapToResponseDto(userRepository.save(user));
     }
 
@@ -138,6 +141,7 @@ public class UserServiceImpl implements UserService {
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .status(user.getStatus())
                 .managerId(user.getManagerId())
+                .teamId(user.getTeam().getId())
                 .build();
     }
 }

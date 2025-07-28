@@ -21,4 +21,5 @@ public class UserResponseDto {
     private String profilePictureUrl;
     private String status;
     private Long managerId;
+    private Long teamId;
 }
