@@ -2,7 +2,6 @@ package org.example.userservice.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.example.userservice.entity.StompPrincipal;
 import org.example.userservice.security.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
         if (request instanceof ServletServerHttpRequest servletRequest) {
             HttpServletRequest httpServletRequest = servletRequest.getServletRequest();
-            token = httpServletRequest.getParameter("token"); // Expected via ws://localhost:8081/ws?token=...
+            token = httpServletRequest.getParameter("token");
         }
 
         if (token == null || !jwtUtil.validateToken(token)) {
