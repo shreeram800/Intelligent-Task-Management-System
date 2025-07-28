@@ -23,4 +23,5 @@ public class ProjectRequestDto {
 
     private List<UUID> taskIds;
     private List<UUID> userIds;
+    private Long managerId;
 }

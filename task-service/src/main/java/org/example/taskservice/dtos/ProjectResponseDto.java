@@ -27,4 +27,5 @@ public class ProjectResponseDto {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Long managerId;
 }

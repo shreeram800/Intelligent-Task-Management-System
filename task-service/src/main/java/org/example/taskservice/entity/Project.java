@@ -52,4 +52,6 @@ public class Project {
     @CollectionTable(name = "project_users", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "user_id")
     private List<UUID> userIds;
+
+    private Long manager;
 }

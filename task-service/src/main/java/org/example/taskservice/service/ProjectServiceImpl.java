@@ -1,10 +1,13 @@
 package org.example.taskservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.taskservice.config.UserServiceClient;
 import org.example.taskservice.dtos.ProjectRequestDto;
 import org.example.taskservice.dtos.ProjectResponseDto;
+import org.example.taskservice.dtos.UserDto;
 import org.example.taskservice.entity.Project;
 import org.example.taskservice.repository.ProjectRepository;
+import org.example.taskservice.security.AuthTokenProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,10 +18,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
 
+    private final UserServiceClient serviceClient;
     private final ProjectRepository projectRepository;
+    private final AuthTokenProvider tokenProvider;
 
     @Override
     public ProjectResponseDto createProject(ProjectRequestDto dto) {
+        UserDto userDto = serviceClient.getUserById(dto.getManagerId(),tokenProvider.getAuthToken());
+        if(userDto==null || userDto.getRole().equals("MANAGER")){
+            throw new IllegalArgumentException("Invalid user");
+        }
         Project project = mapToEntity(dto);
         Project saved = projectRepository.save(project);
         return mapToResponse(saved);
@@ -29,6 +38,10 @@ public class ProjectServiceImpl implements ProjectService {
         Project existing = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with ID: " + id));
 
+        UserDto userDto = serviceClient.getUserById(dto.getManagerId(),tokenProvider.getAuthToken());
+        if(userDto==null || userDto.getRole().equals("MANAGER")){
+            throw new IllegalArgumentException("Invalid user");
+        }
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
         existing.setStatus(dto.getStatus());
@@ -36,6 +49,7 @@ public class ProjectServiceImpl implements ProjectService {
         existing.setEndDate(dto.getEndDate());
         existing.setTaskIds(dto.getTaskIds());
         existing.setUserIds(dto.getUserIds());
+        existing.setManager(dto.getManagerId());
 
         Project updated = projectRepository.save(existing);
         return mapToResponse(updated);
@@ -74,6 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .endDate(dto.getEndDate())
                 .taskIds(dto.getTaskIds())
                 .userIds(dto.getUserIds())
+                .manager(dto.getManagerId())
                 .build();
     }
 
@@ -89,6 +104,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .userIds(project.getUserIds())
                 .createdAt(project.getCreatedAt())
                 .updatedAt(project.getUpdatedAt())
+                .managerId(project.getManager())
                 .build();
     }
 }
