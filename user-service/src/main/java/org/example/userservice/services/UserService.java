@@ -19,4 +19,6 @@ public interface UserService {
     UserResponseDto getUserByUserName(String userName);
 
     List<UserResponseDto> getAllUsers();
+
+    List<UserResponseDto> getUsersByMangerId(Long id);
 }

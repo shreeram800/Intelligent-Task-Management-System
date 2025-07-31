@@ -21,7 +21,7 @@ public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String name;
@@ -34,24 +34,19 @@ public class Project {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    // Auditing fields
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    // Assuming task-service is separate: store task IDs or use Rest client
-    @ElementCollection
-    @CollectionTable(name = "project_tasks", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "task_id")
-    private List<UUID> taskIds;
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private List<Task> tasks;
 
-    // Users assigned to this project (stored by UUID)
     @ElementCollection
-    @CollectionTable(name = "project_users", joinColumns = @JoinColumn(name = "project_id"))
+    @CollectionTable(name = "project_user_ids", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "user_id")
-    private List<UUID> userIds;
+    private List<Long> userIds;
 
     private Long manager;
 }

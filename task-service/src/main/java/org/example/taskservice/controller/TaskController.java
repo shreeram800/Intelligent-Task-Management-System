@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
@@ -31,6 +33,9 @@ public class TaskController {
             @RequestPart("task") TaskRequestDto taskRequest,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {
 
+        if(taskRequest == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         TaskResponseDto response = null;
         try {
             response = taskService.createTask(taskRequest, attachments);
@@ -38,6 +43,7 @@ public class TaskController {
             throw new RuntimeException(e);
         }
         return ResponseEntity.ok(response);
+
     }
 
     @PutMapping("/{id}")
@@ -105,7 +111,6 @@ public class TaskController {
             @RequestParam Long assigneeId
     ) {
         taskService.assignTask(taskId, assignerId, assigneeId);
-
         return ResponseEntity.ok("Task assigned successfully.");
     }
 
@@ -129,10 +134,15 @@ public class TaskController {
                 .filename(file.getFileName())
                 .build());
         headers.setContentLength(file.getFileSize());
-
         return new ResponseEntity<>(file.getData(), headers, HttpStatus.OK);
     }
+    @GetMapping("/user/project/{projectId}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
+    public ResponseEntity<List<TaskResponseDto>> getTasksByProjectId(
+            @PathVariable Long projectId) {
+        List<TaskResponseDto> tasks = taskService.getTasksByProjectId(projectId);
 
-
+        return ResponseEntity.ok(tasks);
+    }
 
 }

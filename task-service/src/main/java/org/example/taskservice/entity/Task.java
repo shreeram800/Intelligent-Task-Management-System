@@ -28,10 +28,12 @@ public class Task {
     private String description;
 
     @Column(name = "assigned_to")
-    private Long assignedToUserId; // Reference to User ID (can be a foreign key in future with @ManyToOne)
+    private Long assignedToUserId;
+    // Reference to User ID (can be a foreign key in future with @ManyToOne)
 
-    @Column(name = "project_id")
-    private Long projectId; // Link to a project (if multi-project system)
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

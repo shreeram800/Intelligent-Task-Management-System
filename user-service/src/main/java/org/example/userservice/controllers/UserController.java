@@ -32,6 +32,7 @@ public class UserController {
     //  Login user (returns JWT + user data)
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> loginUser(@Valid @RequestBody UserLoginRequestDto request) {
+        System.out.println(request.toString());
         AuthResponseDto authResponse = userService.loginUser(request);
         return ResponseEntity.ok(authResponse);
     }
@@ -83,5 +84,11 @@ public class UserController {
     @PreAuthorize("isAuthenticated() and (hasRole('MANAGER') or hasRole('ADMIN'))")
     public ResponseEntity<List<UserResponseDto>> getALlUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+
+    @GetMapping("manager/{id}")
+    public  ResponseEntity<List<UserResponseDto>>  getAllUsersByManagerId(@PathVariable  Long id) {
+        return ResponseEntity.ok(userService.getUsersByMangerId(id));
     }
 }

@@ -40,4 +40,5 @@ public class TaskResponseDto {
     private Long updatedBy;
 
     private List<AttachmentMetaDto> attachments;
+
 }

@@ -6,6 +6,7 @@ import org.example.taskservice.config.NotificationClient;
 import org.example.taskservice.config.UserServiceClient;
 import org.example.taskservice.dtos.*;
 import org.example.taskservice.entity.*;
+import org.example.taskservice.repository.ProjectRepository;
 import org.example.taskservice.repository.TaskRepository;
 import org.example.taskservice.security.AuthTokenProvider;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class TaskServiceImpl implements TaskService {
     private final UserServiceClient userClient;
     private final AttachmentService attachmentService;
     private final AuthTokenProvider tokenProvider;
+    private final ProjectRepository projectRepository;
 
     @Override
     public TaskResponseDto createTask(TaskRequestDto request, List<MultipartFile> attachments) throws IOException {
@@ -36,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .assignedToUserId(request.getAssignedToUserId())
-                .projectId(request.getProjectId())
+                .project(projectRepository.findById(request.getProjectId()).orElse(null))
                 .status(TaskStatus.valueOf(request.getStatus().toUpperCase()))
                 .priority(request.getPriority() != null ? TaskPriority.valueOf(request.getPriority().toUpperCase()) : null)
                 .dueDate(request.getDueDate())
@@ -78,7 +80,7 @@ public class TaskServiceImpl implements TaskService {
         if (request.getTitle() != null) task.setTitle(request.getTitle());
         if (request.getDescription() != null) task.setDescription(request.getDescription());
         if (request.getAssignedToUserId() != null) task.setAssignedToUserId(request.getAssignedToUserId());
-        if (request.getProjectId() != null) task.setProjectId(request.getProjectId());
+        if (request.getProjectId() != null) task.setProject(projectRepository.findById(request.getProjectId()).orElse(null));
         if (request.getStatus() != null) task.setStatus(TaskStatus.valueOf(request.getStatus().toUpperCase()));
         if (request.getPriority() != null) task.setPriority(TaskPriority.valueOf(request.getPriority().toUpperCase()));
         if (request.getDueDate() != null) task.setDueDate(request.getDueDate());
@@ -139,13 +141,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskResponseDto> getTasksByCreatedBy(Long userId) {
-        return taskRepository.findByCreatedByAndDeletedFalse(userId).stream()
-                .map(this::mapToResponseDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public void softDeleteTask(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
@@ -177,7 +172,7 @@ public class TaskServiceImpl implements TaskService {
                 .title(task.getTitle())
                 .description(task.getDescription())
                 .assignedToUserId(task.getAssignedToUserId())
-                .projectId(task.getProjectId())
+                .projectId(task.getProject().getId())
                 .status(task.getStatus().name())
                 .priority(task.getPriority() != null ? task.getPriority().name() : null)
                 .dueDate(task.getDueDate())
@@ -226,5 +221,15 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(TaskStatus.DONE);
         task.setUpdatedBy(userId);
         taskRepository.save(task);
+    }
+
+    @Override
+    public List<TaskResponseDto> getTasksByProjectId(Long projectId) {
+
+        Project project=projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found by id"+ projectId));
+
+        List<Task> tasks= taskRepository.getTaskByProject(project);
+
+        return tasks.stream().map(this::mapToResponseDto).collect(Collectors.toList());
     }
 }

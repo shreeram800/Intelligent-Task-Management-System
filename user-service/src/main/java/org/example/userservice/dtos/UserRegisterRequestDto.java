@@ -49,11 +49,6 @@ public class UserRegisterRequestDto {
     )
     private String phoneNumber;
 
-    @Pattern(
-            regexp = "^(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})([/\\w .-]*)*/?$",
-            message = "Invalid profile picture URL format"
-    )
-    private String profilePictureUrl;
 
     private Long teamId;
 }

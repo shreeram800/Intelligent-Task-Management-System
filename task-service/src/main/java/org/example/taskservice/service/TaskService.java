@@ -10,14 +10,14 @@ import java.util.List;
 
 public interface TaskService {
     TaskResponseDto createTask(TaskRequestDto request, List<MultipartFile> attachments) throws IOException;
+
     TaskResponseDto getTaskById(Long id);
 
     List<TaskResponseDto> getAllTasks();
 
     List<TaskResponseDto> getTasksByAssignedToUserId(Long userId);
-    TaskResponseDto updateTask(Long id, TaskUpdateRequestDto request);
 
-    List<TaskResponseDto> getTasksByCreatedBy(Long userId);
+    TaskResponseDto updateTask(Long id, TaskUpdateRequestDto request);
 
     void softDeleteTask(Long id);
 
@@ -28,4 +28,6 @@ public interface TaskService {
     void assignTask(Long taskId, Long assignerId, Long assigneeId);
 
     void completeTask(Long taskId, Long userId);
+
+    List<TaskResponseDto> getTasksByProjectId(Long projectId);
 }

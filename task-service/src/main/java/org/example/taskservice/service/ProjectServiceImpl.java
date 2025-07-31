@@ -1,6 +1,7 @@
 package org.example.taskservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.taskservice.config.ProjectMapper;
 import org.example.taskservice.config.UserServiceClient;
 import org.example.taskservice.dtos.ProjectRequestDto;
 import org.example.taskservice.dtos.ProjectResponseDto;
@@ -11,7 +12,6 @@ import org.example.taskservice.security.AuthTokenProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,20 +21,26 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserServiceClient serviceClient;
     private final ProjectRepository projectRepository;
     private final AuthTokenProvider tokenProvider;
+    private final ProjectMapper projectMapper;
 
     @Override
     public ProjectResponseDto createProject(ProjectRequestDto dto) {
         UserDto userDto = serviceClient.getUserById(dto.getManagerId(),tokenProvider.getAuthToken());
-        if(userDto==null || userDto.getRole().equals("MANAGER")){
+        if(userDto==null || !userDto.getRole().equals("MANAGER")){
             throw new IllegalArgumentException("Invalid user");
         }
-        Project project = mapToEntity(dto);
+        for(Long id: dto.getUserIds()){
+            if(serviceClient.getUserById(id, tokenProvider.getAuthToken())==null){
+                throw new IllegalArgumentException("User doesn't exist by id " + id);
+            }
+        }
+        Project project = projectMapper.toEntity(dto);
         Project saved = projectRepository.save(project);
-        return mapToResponse(saved);
+        return projectMapper.toDto(saved);
     }
 
     @Override
-    public ProjectResponseDto updateProject(UUID id, ProjectRequestDto dto) {
+    public ProjectResponseDto updateProject(Long id, ProjectRequestDto dto) {
         Project existing = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with ID: " + id));
 
@@ -47,64 +53,47 @@ public class ProjectServiceImpl implements ProjectService {
         existing.setStatus(dto.getStatus());
         existing.setStartDate(dto.getStartDate());
         existing.setEndDate(dto.getEndDate());
-        existing.setTaskIds(dto.getTaskIds());
-        existing.setUserIds(dto.getUserIds());
         existing.setManager(dto.getManagerId());
 
         Project updated = projectRepository.save(existing);
-        return mapToResponse(updated);
+        return projectMapper.toDto(updated);
     }
 
     @Override
-    public ProjectResponseDto getProject(UUID id) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + id));
-        return mapToResponse(project);
+    public ProjectResponseDto getProjectById(Long id) {
+        Project project = projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project not found with ID: " + id));
+        return projectMapper.toDto(project);
     }
 
     @Override
     public List<ProjectResponseDto> getAllProjects() {
         return projectRepository.findAll()
                 .stream()
-                .map(this::mapToResponse)
+                .map(projectMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteProject(UUID id) {
+    public void deleteProject(Long id) {
         if (!projectRepository.existsById(id)) {
             throw new RuntimeException("Project not found with ID: " + id);
         }
         projectRepository.deleteById(id);
     }
 
-    // DTO ↔ Entity Mapping
-    private Project mapToEntity(ProjectRequestDto dto) {
-        return Project.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .status(dto.getStatus())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .taskIds(dto.getTaskIds())
-                .userIds(dto.getUserIds())
-                .manager(dto.getManagerId())
-                .build();
+    @Override
+    public List<ProjectResponseDto> getProjectsByManagerId(Long managerId) {
+        List<Project> projects = projectRepository.findByManager(managerId);
+        return projects.stream()
+                .map(projectMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    private ProjectResponseDto mapToResponse(Project project) {
-        return ProjectResponseDto.builder()
-                .id(project.getId())
-                .name(project.getName())
-                .description(project.getDescription())
-                .status(project.getStatus())
-                .startDate(project.getStartDate())
-                .endDate(project.getEndDate())
-                .taskIds(project.getTaskIds())
-                .userIds(project.getUserIds())
-                .createdAt(project.getCreatedAt())
-                .updatedAt(project.getUpdatedAt())
-                .managerId(project.getManager())
-                .build();
+    @Override
+    public List<ProjectResponseDto> getProjectsByUserId(Long userId) {
+        List<Project> projects = projectRepository.findByUserId(userId);
+        return projects.stream()
+                .map(projectMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

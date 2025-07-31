@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
-                .profilePictureUrl(request.getProfilePictureUrl())
+                .profilePictureUrl(null)
                 .role(request.getRole())
                 .isAuthenticated(false)
                 .isEmailVerified(false)
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto getUserById(Long id) {
         User user = userRepository.findById(id)
                 .filter(u -> !u.isDeleted())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found by id"+ id));
 
         return mapToResponseDto(user);
     }
@@ -127,6 +127,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll().stream().map(this::mapToResponseDto).collect(Collectors.toList());
     }
 
+    @Override
+    public List<UserResponseDto> getUsersByMangerId(Long id) {
+        return userRepository.findAllByManagerId(id).stream().map(this::mapToResponseDto).toList();
+    }
+
     private UserResponseDto mapToResponseDto(User user) {
         return UserResponseDto.builder()
                 .id(user.getId())
@@ -138,7 +143,7 @@ public class UserServiceImpl implements UserService {
                 .isAuthenticated(user.isAuthenticated())
                 .isEmailVerified(user.isEmailVerified())
                 .phoneNumber(user.getPhoneNumber())
-                .profilePictureUrl(user.getProfilePictureUrl())
+                .profilePictureUrl(user.getProfilePictureUrl()!=null ? user.getProfilePictureUrl() : null)
                 .status(user.getStatus())
                 .managerId(user.getManagerId())
                 .teamId(user.getTeam().getId())
