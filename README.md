@@ -15,7 +15,6 @@ This system follows the **Microservices Architecture** and includes the followin
 | **User Service** | Manages user registration, authentication, roles, and profile updates. |
 | **Task Service** | Handles creation, assignment, and tracking of tasks with deadlines and priorities. |
 | **Notification Service** | Sends email and push notifications (via Kafka events). |
-| **Chat Service** | Enables real-time chat between team members using WebSocket. |
 
 ### 🔁 Supporting Services
 
@@ -81,6 +80,5 @@ Types of notifications:
 ├── user-service/
 ├── task-service/
 ├── notification-service/
-├── chat-service/
 ├── service-registry/  # Eureka Server
 ├── frontend/          # React + Tailwind
