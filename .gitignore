@@ -1,0 +1,77 @@
+# ===================================================================
+# General & OS-specific files
+# ===================================================================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+
+# ===================================================================
+# IDE Configuration Files (IntelliJ, VSCode, Eclipse)
+# ===================================================================
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VSCode
+.vscode/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# ===================================================================
+# Backend - Java & Maven
+# ===================================================================
+# Compiled class files and packages
+backend/**/target/
+backend/**/*.class
+backend/**/*.jar
+backend/**/*.war
+
+# Maven-specific
+.mvn/
+mvnw
+mvnw.cmd
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# Log files
+backend/**/*.log
+
+# ===================================================================
+# Frontend - Node.js & React
+# ===================================================================
+# Node modules
+frontend/node_modules/
+
+# Build output
+frontend/build/
+frontend/dist/
+frontend/.next/
+
+# Log files
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Environment variables - IMPORTANT: Never commit secrets
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Other generated files
+frontend/.pnp.*
+
