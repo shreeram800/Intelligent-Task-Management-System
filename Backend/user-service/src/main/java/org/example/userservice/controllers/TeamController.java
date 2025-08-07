@@ -1,13 +1,12 @@
 package org.example.userservice.controllers;
 
+import org.example.userservice.dtos.TeamDTO;
 import org.example.userservice.dtos.TeamResponseDto;
+import org.example.userservice.entity.Team;
 import org.example.userservice.services.TeamService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,7 +15,6 @@ import java.util.List;
 public class TeamController {
 
     private final TeamService teamService;
-
 
     public TeamController(TeamService teamService) {
         this.teamService = teamService;
@@ -29,6 +27,14 @@ public class TeamController {
         return  ResponseEntity.ok(teamService.getTeamByManger(id));
     }
 
+    @DeleteMapping("{teamId}/user/{userId}")
+    private void removeUsers(@PathVariable  Long userId, @PathVariable Long teamId) {
+        teamService.removeUser(teamId, userId);
+    }
 
+    @GetMapping("{teamId}")
+    private ResponseEntity<TeamDTO> getTeamById(@PathVariable long teamId) {
+        return ResponseEntity.ok(teamService.getTeamById(teamId));
+    }
 
 }

@@ -1,15 +1,20 @@
 package org.example.userservice.services;
 
 
+import jakarta.transaction.Transactional;
+import org.example.userservice.dtos.TeamDTO;
 import org.example.userservice.dtos.TeamResponseDto;
 import org.example.userservice.dtos.UserResponseDto;
 import org.example.userservice.entity.Team;
+import org.example.userservice.entity.User;
 import org.example.userservice.repository.TeamRepository;
 
 import org.example.userservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TeamService {
@@ -82,4 +87,50 @@ public class TeamService {
     }
 
 
+    public void removeUser(Long teamId, Long userId) {
+        Team temp= teamRepository.getById(teamId);
+        Set<User> users = temp.getUsers();
+        users.stream().filter(user -> user.getId().equals(userId)).findFirst().ifPresent(user -> {});
+        temp.setUsers(users);
+        teamRepository.save(temp);
+    }
+
+    @Transactional
+    public TeamDTO getTeamById(long teamId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("Team not found"));
+
+        TeamDTO dto = new TeamDTO();
+        dto.setId(team.getId());
+        dto.setName(team.getName());
+        dto.setDescription(team.getDescription());
+
+        dto.setManager(mapToResponseDto(team.getManager()));
+        dto.setUsers(
+                team.getUsers()
+                        .stream()
+                        .map(this::mapToResponseDto)
+                        .collect(Collectors.toList())
+        );
+        return dto;
+    }
+
+    private UserResponseDto mapToResponseDto(User user) {
+        return UserResponseDto.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .role(user.getRole())
+                .isAuthenticated(user.isAuthenticated())
+                .isEmailVerified(user.isEmailVerified())
+                .phoneNumber(user.getPhoneNumber())
+                .profilePictureUrl(user.getProfilePictureUrl()!=null ? user.getProfilePictureUrl() : null)
+                .status(user.getStatus())
+                .managerId(user.getManagerId())
+                .teamId(user.getTeam().getId())
+                .createdAt(user.getCreatedAt())
+                .build();
+    }
 }

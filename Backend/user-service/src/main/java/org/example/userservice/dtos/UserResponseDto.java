@@ -2,6 +2,8 @@ package org.example.userservice.dtos;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,4 +24,5 @@ public class UserResponseDto {
     private String status;
     private Long managerId;
     private Long teamId;
+    private LocalDateTime createdAt;
 }

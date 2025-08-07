@@ -50,6 +50,7 @@ public class UserServiceImpl implements UserService {
                 .status("ACTIVE")
                 .deleted(false)
                 .team(teamRepository.getById(request.getTeamId()))
+                .createdAt(LocalDateTime.now())
                 .managerId(request.getManagerId()).build();
 
         User saved = userRepository.save(user);
@@ -147,6 +148,7 @@ public class UserServiceImpl implements UserService {
                 .status(user.getStatus())
                 .managerId(user.getManagerId())
                 .teamId(user.getTeam().getId())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }
