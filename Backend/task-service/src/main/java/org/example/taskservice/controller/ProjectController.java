@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.taskservice.dtos.ProjectRequestDto;
 import org.example.taskservice.dtos.ProjectResponseDto;
 import org.example.taskservice.service.ProjectService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,12 +21,10 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public ResponseEntity<ProjectResponseDto> createProject(@RequestBody ProjectRequestDto requestDto) {
-
         ProjectResponseDto response = projectService.createProject(requestDto);
-
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping

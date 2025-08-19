@@ -86,8 +86,14 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @GetMapping("/userIds")
+    public ResponseEntity<List<UserResponseDto>> getUsersByUserIds(@RequestParam List<Long> userIds) {
+        return ResponseEntity.ok(userService.getUsersByIds(userIds));
+    }
+
 
     @GetMapping("manager/{id}")
+    @PreAuthorize("isAuthenticated() and hasRole('MANAGER')")
     public  ResponseEntity<List<UserResponseDto>>  getAllUsersByManagerId(@PathVariable  Long id) {
         return ResponseEntity.ok(userService.getUsersByMangerId(id));
     }

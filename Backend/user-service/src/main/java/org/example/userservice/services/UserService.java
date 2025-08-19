@@ -21,4 +21,6 @@ public interface UserService {
     List<UserResponseDto> getAllUsers();
 
     List<UserResponseDto> getUsersByMangerId(Long id);
+
+    List<UserResponseDto> getUsersByIds(List<Long> userIds);
 }

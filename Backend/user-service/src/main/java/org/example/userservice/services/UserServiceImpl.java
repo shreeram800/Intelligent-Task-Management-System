@@ -130,8 +130,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponseDto> getUsersByMangerId(Long id) {
-        return userRepository.findAllByManagerId(id).stream().map(this::mapToResponseDto).toList();
+        List<User> list= userRepository.findAllByManagerId(id).orElse(null);
+        if(list!=null) return list.stream().map(this::mapToResponseDto).collect(Collectors.toList());
+        return List.of();
     }
+
+    @Override
+    public List<UserResponseDto> getUsersByIds(List<Long> userIds) {
+        return userRepository.findAllById(userIds)
+                .stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+    }
+
 
     private UserResponseDto mapToResponseDto(User user) {
         return UserResponseDto.builder()

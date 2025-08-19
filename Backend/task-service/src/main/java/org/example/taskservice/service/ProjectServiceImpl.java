@@ -1,5 +1,6 @@
 package org.example.taskservice.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.taskservice.config.ProjectMapper;
 import org.example.taskservice.config.UserServiceClient;
@@ -74,6 +75,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public void deleteProject(Long id) {
         if (!projectRepository.existsById(id)) {
             throw new RuntimeException("Project not found with ID: " + id);
